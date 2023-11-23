@@ -403,21 +403,22 @@ namespace ECommerce.API.Data
 
         public void InsertReview(Review review)
         {
-            using SqlConnection connection = new(dbConnection);
-            SqlCommand command = new()
+            using (SqlConnection connection = new SqlConnection(dbConnection))
             {
-                Connection = connection
-            };
+                SqlCommand insertCommand = new SqlCommand("INSERT INTO Reviews (UserId, ProductId, Review, CreatedAt, nota) VALUES (@uid, @pid, @rv, @cat, @not);", connection);
+                insertCommand.Parameters.AddWithValue("@uid", review.User.Id);
+                insertCommand.Parameters.AddWithValue("@pid", review.Product.Id);
+                insertCommand.Parameters.AddWithValue("@rv", review.Value);
+                insertCommand.Parameters.AddWithValue("@cat", review.CreatedAt);
+                insertCommand.Parameters.AddWithValue("@not", review.Nota);
 
-            string query = "INSERT INTO Reviews (UserId, ProductId, Review, CreatedAt) VALUES (@uid, @pid, @rv, @cat);";
-            command.CommandText = query;
-            command.Parameters.Add("@uid", System.Data.SqlDbType.Int).Value = review.User.Id;
-            command.Parameters.Add("@pid", System.Data.SqlDbType.Int).Value = review.Product.Id;
-            command.Parameters.Add("@rv", System.Data.SqlDbType.NVarChar).Value = review.Value;
-            command.Parameters.Add("@cat", System.Data.SqlDbType.NVarChar).Value = review.CreatedAt;
+                SqlCommand updateCommand = new SqlCommand("UPDATE Products SET nota = (SELECT AVG(nota) FROM Reviews WHERE ProductId = @pid) WHERE ProductId = @pid;", connection);
+                updateCommand.Parameters.AddWithValue("@pid", review.Product.Id);
 
-            connection.Open();
-            command.ExecuteNonQuery();
+                connection.Open();
+                insertCommand.ExecuteNonQuery();
+                updateCommand.ExecuteNonQuery();
+            }
         }
 
         public User GetUser(int id)
@@ -586,7 +587,8 @@ namespace ECommerce.API.Data
                     {
                         Id = (int)reader["ReviewId"],
                         Value = (string)reader["Review"],
-                        CreatedAt = (string)reader["CreatedAt"]
+                        CreatedAt = (string)reader["CreatedAt"],
+                        Nota = reader["nota"] != DBNull.Value ? (int)reader["nota"] : 0
                     };
 
                     var userid = (int)reader["UserId"];

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NavigationService } from '../services/navigation.service';
 import { UtilityService } from '../services/utility.service';
 import { Product, Review, SuggestedProducts } from '../models/models';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-product-details',
@@ -13,7 +13,7 @@ import { FormControl } from '@angular/forms';
 export class ProductDetailsComponent implements OnInit {
   imageIndex: number = 1;
   product !: Product;
-  reviewControl = new FormControl('');
+  reviewControl!: FormGroup;
   showError = false;
   reviewSaved = false;
   otherReviews: Review[] = [];
@@ -21,10 +21,16 @@ export class ProductDetailsComponent implements OnInit {
   constructor(
     private ActivatedRoute: ActivatedRoute,
     private NavigationService: NavigationService,
-    public utilityService: UtilityService
+    public utilityService: UtilityService,
+    private fb: FormBuilder
   ) {}
   
   ngOnInit(): void {
+    this.reviewControl = this.fb.group({
+      review: ['', Validators.required],
+      nota: [0, Validators.required]
+    })
+
     this.ActivatedRoute.queryParams.subscribe((params: any) => {
       let id = params.id;
       this.NavigationService.getProduct(id).subscribe((res: any) => {
@@ -35,7 +41,8 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   submitReview() {
-    let review = this.reviewControl.value;
+    let review = this.reviewControl.get('review')?.value;
+    let nota = this.reviewControl.get('nota')?.value;
 
     if (review === '' || review === null) {
       this.showError = true;
@@ -46,13 +53,15 @@ export class ProductDetailsComponent implements OnInit {
       let productid = this.product.id;
       let productCategory = this.product.productCategory.category;
       let productSubcategory= this.product.productCategory.subCategory;
-  
       this.NavigationService
-        .submitReview(userid, productid, review, productCategory, productSubcategory)
+        .submitReview(userid, productid, review, productCategory, productSubcategory, nota)
         .subscribe((res) => {
           this.reviewSaved = true;
           this.fetchAllReviews();
-          this.reviewControl.setValue('');
+          this.reviewControl.patchValue({
+            review: '',
+            nota: 0
+          });
         });
     }
 
@@ -61,11 +70,11 @@ export class ProductDetailsComponent implements OnInit {
       this.NavigationService
         .getAllReviewsOfProduct(this.product.id)
         .subscribe((res: any) => {
+          console.log(res)
           for (let review of res) {
             this.otherReviews.push(review);
           }
         });
-      console.log(this.otherReviews)
     }
 
     formatDate(dateString: string): string {

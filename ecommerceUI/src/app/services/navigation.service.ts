@@ -38,6 +38,7 @@ export class NavigationService {
 
   getProduct(id: number) {
     let url = this.baseUrl + "GetProduct/" + id;
+    console.log(url);
     return this.http.get(url);
   }
 
@@ -55,7 +56,7 @@ export class NavigationService {
     );
   }
 
-  submitReview(userid: number, productid: number, review: string, category: string, subcategory: string) {
+  submitReview(userid: number, productid: number, review: string, category: string, subcategory: string, nota: number) {
     let obj: any = {
       User: {
         Id: userid,
@@ -68,6 +69,7 @@ export class NavigationService {
         }
       },
       Value: review,
+      nota: nota,
     };
 
     let url = this.baseUrl + 'InsertReview';
@@ -108,5 +110,10 @@ export class NavigationService {
 
   insertOrder(order: Order) {
     return this.http.post(this.baseUrl + 'InsertOrder', order );
+  }
+
+  getUser(userId: number) {
+    let url = this.baseUrl + 'GetUser?id=' + userId;
+    return this.http.get(url);
   }
  }

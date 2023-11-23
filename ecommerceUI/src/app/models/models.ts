@@ -49,6 +49,7 @@ export interface Product {
     product: Product;
     value: string;
     createdAt: string;
+    nota: number;
   }
 
   //endregion

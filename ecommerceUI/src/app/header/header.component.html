@@ -30,7 +30,8 @@
                 (click)="openModal('login')" *ngIf="!utilityService.isLoggedIn()">Login</button>
             <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#generalmodal" 
                 (click)="openModal('register')" *ngIf="!utilityService.isLoggedIn()">Register</button>
-            <button type="button" class="btn btn-outline-light" *ngIf="utilityService.isLoggedIn()">Account</button>
+            <button type="button" class="btn btn-outline-light" *ngIf="utilityService.isLoggedIn()"
+                routerLink="/account">Account</button>
             <button type="button" class="btn btn-outline-light" 
                 *ngIf="utilityService.isLoggedIn()" routerLink="/cart">
                 Cart

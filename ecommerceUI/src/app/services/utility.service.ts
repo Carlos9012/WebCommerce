@@ -30,7 +30,7 @@ export class UtilityService {
       email: token.email,
       address: token.address,
       mobile: token.mobile,
-      password: '',
+      password: token.password,
       createdAt: token.createdAt,
       modifiedAt: token.modifiedAt,
     };
