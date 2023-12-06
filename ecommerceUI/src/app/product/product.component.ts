@@ -26,6 +26,7 @@ export class ProductComponent implements OnInit {
       discount: 0,
     },
     imageName: '',
+    nota: 0
   };
 
   constructor(public utilityService: UtilityService) {}

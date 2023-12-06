@@ -42,6 +42,10 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <h5 class="card-text">Nota</h5>
+                    <p>{{product.nota}}</p>
+                </div>
+                <div class="card-body">
                     <h5 class="card-text">Description</h5>
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-action" *ngFor="let item of product.description_.split('. ')">

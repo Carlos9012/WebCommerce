@@ -29,6 +29,7 @@ export interface Product {
     price: number;
     quantity: number;
     imageName: string;
+    nota: number;
   }
 
   export interface User {

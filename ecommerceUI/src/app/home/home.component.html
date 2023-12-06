@@ -1,4 +1,7 @@
 <div class="my-container mx-auto border">
+    <div class="container-fluid d-flex justify-content-around aling-items-center mb-3 mt-3">
+        <app-product class="w-25" *ngFor="let product of products" [product]="product"></app-product>
+    </div>
 
     <div class="mb-4 my-shadow my-rounded-corner overflow-hidden" *ngFor="let 
     suggestedProduct of suggestedProducts">

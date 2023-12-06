@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { SuggestedProducts } from '../models/models';
+import { Product, SuggestedProducts } from '../models/models';
+import { NavigationService } from '../services/navigation.service';
 
 @Component({
   selector: 'app-home',
@@ -7,6 +8,7 @@ import { SuggestedProducts } from '../models/models';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  category:string = 'eletronics';
   suggestedProducts: SuggestedProducts[] = [
     {
       banerimage: 'Baner/Baner_Mobile.png',
@@ -34,6 +36,15 @@ export class HomeComponent implements OnInit {
     },
   ];
 
+  products: Product[] = [];
+  constructor(private navigationService: NavigationService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.navigationService.getDistinctProducts()
+      .subscribe((res: any[]) => {
+      for (let product of res) {
+        this.products.push(product);
+      }
+    });
+  }
 }

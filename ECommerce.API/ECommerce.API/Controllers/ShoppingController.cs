@@ -42,6 +42,27 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetMinProducts")]
+        public IActionResult GetMinProduct(string category, string subcategory)
+        {
+            var result = dataAccess.GetMinProduct(category, subcategory);
+            return Ok(result);
+        }
+
+        [HttpGet("GetMaxOfferBySubcategory")]
+        public IActionResult GetMaxOfferBySubcategory(string category, string subcategory)
+        {
+            var result = dataAccess.GetMaxOfferBySubcategory(category ,subcategory);
+            return Ok(result);
+        }
+
+        [HttpGet("GetDistinctProducts")]
+        public IActionResult GetDistinctProducts(string category)
+        {
+            var result = dataAccess.GetDistinctProducts(category);
+            return Ok(result);
+        }
+
         [HttpGet("GetProduct/{id}")]
         public IActionResult GetProduct(int id)
         {
@@ -127,6 +148,13 @@ namespace ECommerce.API.Controllers
             payment.CreatedAt = DateTime.Now.ToString();
             int id = dataAccess.InsertPayment(payment);
             return Ok(id.ToString());
+        }
+
+        [HttpGet("GetPricePreviousCart")]
+        public IActionResult CalculateCartTotalValue(int id)
+        {
+            var result = dataAccess.CalculateCartTotalValue(id);
+            return Ok(result);
         }
 
         [HttpPost("InsertOrder")]

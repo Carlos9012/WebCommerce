@@ -27,6 +27,96 @@
         </div>
     </div>
 
+    <div class="row g-0">
+
+        <!--profile img of product-->
+        <div class="col-4 p-4">
+            <div class="d-flex justify-content-center align-items-center">
+                <img src="../../assets/{{BestOffer.productCategory.subCategory}}/{{BestOffer.id}}/{{1}}.jpg" alt="" class="w-100">
+            </div>
+        </div>
+
+        <!--details of product-->
+        <div class="col-8 p-4">
+            <div class="card">
+                <div class="card-header">
+                    {{BestOffer.title}}
+                </div>
+
+                <div class="card-body">
+                    Maior Desconto da Loja:
+                    <h1 class="card-title text-success">
+                        {{utilityService.applyDiscount(BestOffer.price, BestOffer.offer.discount)   | number: '1.2-2'}}
+                        <span class="text-primary">-{{BestOffer.offer.discount}}%</span>
+                    </h1>
+                    <h4 class="card-title text-danger text-decoration-line-through">
+                        {{BestOffer.price}}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle my-2 text-primary">{{BestOffer.quantity}} products are available.</h6>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-success" [disabled]="!utilityService.isLoggedIn()"
+                            (click)="this.utilityService.addToCart(BestOffer)">Add to card
+                                <span *ngIf="!utilityService.isLoggedIn()">(Login Fist)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-text">Description</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-action" *ngFor="let item of BestOffer.description_.split('. ')">
+                            {{item}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="row g-0">
+
+        <!--profile img of product-->
+        <div class="col-4 p-4">
+            <div class="d-flex justify-content-center align-items-center">
+                <img src="../../assets/{{destaque.productCategory.subCategory}}/{{destaque.id}}/{{1}}.jpg" alt="" class="w-100">
+            </div>
+        </div>
+
+        <!--details of product-->
+        <div class="col-8 p-4">
+            <div class="card">
+                <div class="card-header">
+                    {{destaque.title}}
+                </div>
+
+                <div class="card-body">
+                    O Menor Preço da Loja:
+                    <h5 class="card-title text-success">
+                        {{destaque.price}}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle my-2 text-primary">{{destaque.quantity}} products are available.</h6>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-success" [disabled]="!utilityService.isLoggedIn()"
+                            (click)="this.utilityService.addToCart(destaque)">Add to card
+                                <span *ngIf="!utilityService.isLoggedIn()">(Login Fist)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-text">Description</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-action" *ngFor="let item of destaque.description_.split('. ')">
+                            {{item}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="border p-5">
         <!--grid view-->
         <div class="grid-view" *ngIf="view === 'grid'">

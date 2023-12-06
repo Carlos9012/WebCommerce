@@ -9,6 +9,7 @@ import { Cart } from '../models/models';
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
+  previousPrice: number = 0;
   usersCart: Cart = {
     id: 0,
     user: this.utilityService.getUser(),
@@ -46,18 +47,23 @@ export class CartComponent implements OnInit {
       .getActiveCartOfUser(this.utilityService.getUser().id)
       .subscribe((res: any) => {
         this.usersCart = res;
-
+        console.log(res);
+        // get previous card value
+        this.navigationService.getPreviousValue(this.usersCart.id).subscribe((res: any) => {
+          this.previousPrice = res
+        })
         //calcule payment
         this.utilityService.calculatePayment(
           this.usersCart,
           this.usersPaymentInfo
         );
-      });
+      });    
 
     // get previous carts
     this.navigationService
       .getAllPreviousCarts(this.utilityService.getUser().id)
       .subscribe((res: any) => {
+        console.log(res);
         this.usersPreviousCart = res;
       })
   }

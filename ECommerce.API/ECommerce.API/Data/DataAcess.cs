@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ECommerce.API.Data
 {
@@ -213,6 +214,132 @@ namespace ECommerce.API.Data
             return productCategories;
         }
 
+        public Product GetMinProduct(string category, string subcategory)
+        {
+            var product = new Product();
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                connection.Open();
+
+                string query = @"SELECT p.ProductId, p.Title, p.description_, p.Price, p.Quantity, p.ImageName, pc.Category, MIN(p.Price - (p.Price * (o.Discount * 0.01))) AS LowestPriceWithDiscount
+                                FROM Products p
+                                INNER JOIN Offers o ON p.OfferId = o.OfferId
+                                INNER JOIN ProductCategories pc ON p.CategoryId = pc.CategoryId
+                                WHERE pc.Category = @Category AND pc.SubCategory = @Subcategory
+                                GROUP BY p.ProductId, p.Title, p.description_, p.Price, p.Quantity, p.ImageName, pc.Category";
+
+
+                using SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Category", category);
+                command.Parameters.AddWithValue("@Subcategory", subcategory);
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    product = new Product()
+                    {
+                        Id = (int)reader["ProductId"],
+                        Title = (string)reader["Title"],
+                        description_ = (string)reader["description_"],
+                        Price = (double)reader["Price"],
+                        Quantity = (int)reader["Quantity"],
+                        ImageName = (string)reader["ImageName"],
+                        ProductCategory = new ProductCategory
+                        {
+                            Category = category,
+                            SubCategory = subcategory
+                        }
+                };
+                }
+            }
+            return product;
+        }
+
+        public Product GetMaxOfferBySubcategory(string category, string subcategory)
+        {
+            var product = new Product();
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                connection.Open();
+
+                string query = @"SELECT TOP 1 p.ProductId, p.Title, p.description_, p.Price, p.Quantity, p.ImageName, pc.Category,
+                                MAX(o.Discount) AS MaxDiscount
+                                 FROM Products p
+                                 INNER JOIN Offers o ON p.OfferId = o.OfferId
+                                 INNER JOIN ProductCategories pc ON p.CategoryId = pc.CategoryId
+                                 WHERE pc.Category = @Category AND pc.SubCategory = @Subcategory
+                                 GROUP BY p.ProductId, p.Title, p.description_, p.Price, p.Quantity, p.ImageName, pc.Category
+                                 ORDER BY MaxDiscount DESC";
+
+                using SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Category", category);
+                command.Parameters.AddWithValue("@Subcategory", subcategory);
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    product = new Product()
+                    {
+                        Id = (int)reader["ProductId"],
+                        Title = (string)reader["Title"],
+                        description_ = (string)reader["description_"],
+                        Price = (double)reader["Price"],
+                        Quantity = (int)reader["Quantity"],
+                        ImageName = (string)reader["ImageName"],
+                        ProductCategory = new ProductCategory
+                        {
+                            Category = category,
+                            SubCategory = subcategory
+                        },
+                        offer = new Offer
+                        {
+                            Discount = (int)reader["MaxDiscount"]
+                        }
+                    };
+                }
+            }
+            return product;
+        }
+
+        public List<Product> GetDistinctProducts(string category)
+        {
+            var products = new List<Product>();
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                connection.Open();
+
+                string query = @"SELECT DISTINCT p.ProductId, p.Title, p.description_, p.Price, p.Quantity, p.ImageName, pc.Category, pc.SubCategory
+                        FROM Products p
+                        INNER JOIN ProductCategories pc ON p.CategoryId = pc.CategoryId
+                        WHERE pc.Category = @category";
+
+                using SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@category", category);
+
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var product = new Product()
+                    {
+                        Id = (int)reader["ProductId"],
+                        Title = (string)reader["Title"],
+                        description_ = (string)reader["description_"],
+                        Price = (double)reader["Price"],
+                        Quantity = (int)reader["Quantity"],
+                        ImageName = (string)reader["ImageName"],
+                        ProductCategory = new ProductCategory
+                        {
+                            Category = (string)reader["Category"],
+                            SubCategory = (string)reader["SubCategory"]
+                        }
+                    };
+
+                    products.Add(product);
+                }
+            }
+            return products;
+        }
+
         public ProductCategory GetProductCategory(int id)
         {
             var productCategory = new ProductCategory();
@@ -261,6 +388,8 @@ namespace ECommerce.API.Data
 
                     var offerId = (int)reader["OfferId"];
                     product.offer = GetOffer(offerId);
+                    product.nota = reader["nota"] != DBNull.Value ? (double)reader["nota"] : 0;
+
                 }
             }
             return product;
@@ -563,6 +692,39 @@ namespace ECommerce.API.Data
             }
             return value;
         }
+
+        public double CalculateCartTotalValue(int cartId)
+        {
+            double totalValue = 0;
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                SqlCommand command = new SqlCommand
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string query = @"SELECT SUM(p.Price - (p.Price * (o.Discount * 0.01))) AS TotalValue
+                         FROM CartItems ci
+                         JOIN Products p ON ci.ProductId = p.ProductId
+                         LEFT JOIN Offers o ON p.OfferId = o.OfferId
+                         WHERE ci.CartId = @CartId;";
+
+                command.CommandText = query;
+                command.Parameters.AddWithValue("@CartId", cartId);
+
+                object result = command.ExecuteScalar();
+                if (result != DBNull.Value)
+                {
+                    totalValue = Convert.ToDouble(result);
+                    totalValue = Math.Round(totalValue, 2);
+                }
+            }
+            return totalValue;
+        }
+
+
 
         public List<Review> GetProductReviews(int productId)
         {

@@ -116,4 +116,24 @@ export class NavigationService {
     let url = this.baseUrl + 'GetUser?id=' + userId;
     return this.http.get(url);
   }
+
+  getPreviousValue(id_cart: number) {
+    return this.http.get(this.baseUrl + 'GetPricePreviousCart?id=' + id_cart);
+  }
+
+  getMinProduct(category: string, subCategory: string) {
+    return this.http.get(this.baseUrl +  'GetMinProducts?category='+ category +'&subcategory=' + subCategory)
+  }
+
+  getMaxOpffer(category: string, subCategory: string) {
+    return this.http.get(this.baseUrl + 'GetMaxOfferBySubcategory?category='+category+'&subcategory='+ subCategory)
+  }
+
+  getEletronics(){
+    return this.http.get(this.baseUrl + 'GetDistinctProducts?category=eletronics')
+  }
+
+  getDistinctProducts(){
+    return this.http.get<any[]>(this.baseUrl + 'GetDistinctProducts?category=eletronics')
+  }
  }
